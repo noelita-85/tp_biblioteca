@@ -283,7 +283,7 @@ class Command(BaseCommand):
                 except ValidationError as e:
                     self.stdout.write(self.style.ERROR(f"Error: {e.message}"))
   
-            elif opcion == "10":
+            elif opcion == "12":
                 self.stdout.write("\n--- RESERVAS DE UN SOCIO ---")
                 try:
                     id_socio = int(input("Ingrese el ID del socio: ").strip())
@@ -304,7 +304,7 @@ class Command(BaseCommand):
                 except ValidationError as e:
                     self.stdout.write(self.style.ERROR(f"Error: {e.message if hasattr(e, 'message') else e}"))
 
-            elif opcion == "11":
+            elif opcion == "13":
                 self.stdout.write("\n--- TODAS LAS RESERVAS DEL SISTEMA ---")
                 reservas = obtener_todas_las_reservas()
 
