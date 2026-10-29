@@ -1,0 +1,1 @@
+from .registrar_socio_service import RegistrarSocioService
