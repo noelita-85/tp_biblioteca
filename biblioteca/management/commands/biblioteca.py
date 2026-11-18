@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ValidationError
+from biblioteca.models import CategoriaLibro
 from biblioteca.services import (
     RegistrarLibroService,
     RegistrarSocioService,
@@ -50,11 +51,29 @@ class Command(BaseCommand):
                     titulo = input("Título: ").strip()
                     autor = input("Autor: ").strip()
                     isbn = input("ISBN: ").strip()
+                    anio_str = input("Año de publicación (por defecto 2024): ").strip()
+                    anio_publicacion = int(anio_str) if anio_str.isdigit() else 2024
                     cant = input("Cantidad de ejemplares (por defecto 1): ").strip()
                     cantidad = int(cant) if cant.isdigit() else 1
 
-                    libro = RegistrarLibroService.ejecutar(titulo, autor, isbn, cantidad)
-                    self.stdout.write(self.style.SUCCESS(f"Libro '{libro.titulo}' registrado con éxito (ID #{libro.id})."))
+                    self.stdout.write("Categorías disponibles:")
+                    for codigo, nombre in CategoriaLibro.choices:
+                        self.stdout.write(f"  - {codigo}: {nombre}")
+                    categoria = input("Categoría (código, ENTER para 'OTR'): ").strip().upper() or CategoriaLibro.OTRO
+
+                    libro = RegistrarLibroService.ejecutar(
+                        titulo,
+                        autor,
+                        isbn,
+                        cantidad,
+                        anio_publicacion=anio_publicacion,
+                        categoria=categoria,
+                    )
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f"Libro '{libro.titulo}' ({libro.anio_publicacion}) [{libro.get_categoria_display()}] registrado con éxito (ID #{libro.id})."
+                        )
+                    )
                 except ValidationError as e:
                     msg = e.message if hasattr(e, 'message') else str(e)
                     self.stdout.write(self.style.ERROR(f"Error: {msg}"))
@@ -81,7 +100,10 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.WARNING("No se encontraron libros."))
                 else:
                     for l in libros:
-                        self.stdout.write(f"- ID #{l.id} | '{l.titulo}' - {l.autor} | ISBN: {l.isbn} | Stock: {l.cantidad_total}")
+                        self.stdout.write(
+                            f"- ID #{l.id} | '{l.titulo}' ({l.anio_publicacion}) - {l.autor} | "
+                            f"Cat: {l.get_categoria_display()} | ISBN: {l.isbn} | Stock: {l.cantidad_disponible}/{l.cantidad_total}"
+                        )
 
             elif opcion == "4":
                 self.stdout.write("\n--- BÚSQUEDA DE SOCIOS ---")
