@@ -20,6 +20,11 @@ from biblioteca.services import (
 
 class Command(BaseCommand):
     help = "Inicia el sistema interactivo de reserva de libros"
+    def pedir_id(self, mensaje):
+        valor = input(mensaje).strip()
+        if not valor.isdigit():
+            raise ValidationError("Debe ingresar un ID numérico válido.")
+        return int(valor)
 
     def handle(self, *args, **options):
         while True:
@@ -137,30 +142,32 @@ class Command(BaseCommand):
                             f"- Socio #{id_mostrar}: {socio.nombre_completo} | "
                             f"DNI: {socio.dni} | Email: {email_mostrar} | Estado: {estado_texto}"
                         )
-
             elif opcion == "5":
                 self.stdout.write("\n--- REALIZAR RESERVA ---")
                 try:
-                    id_socio = input("ID de Socio: ").strip()
-                    id_libro = input("ID de Libro: ").strip()
+                    id_socio = self.pedir_id("ID de Socio: ")
+                    id_libro = self.pedir_id("ID de Libro: ")
 
                     reserva = RealizarReservaService.ejecutar(id_socio, id_libro)
                     self.stdout.write(
                         self.style.SUCCESS(f"Reserva #{reserva.id} creada con éxito para {reserva.socio.nombre_completo}.")
-                    )#aumenta un nro automatico en la base de datos y se asocia al socio y libro correspondiente, con estado PENDIENTE. Si el socio no existe o el libro no tiene stock, lanza ValidationError.
+                    )  # aumenta un nro automatico en la base de datos y se asocia al socio y libro correspondiente, con estado PENDIENTE. Si el socio no existe o el libro no tiene stock, lanza ValidationError.
                 except ValidationError as e:
                     msg = e.message if hasattr(e, 'message') else str(e)
                     self.stdout.write(self.style.ERROR(f"Error: {msg}"))
+            
+
+                    
 
             elif opcion == "6":
                 self.stdout.write("\n--- RETIRAR LIBRO ---")
                 try:
                     id_reserva = input("ID de Reserva a retirar: ").strip()
+                    if not id_reserva.isdigit():
+                        raise ValidationError("El ID de reserva debe ser un número.")
 
-                    reserva = RetirarLibroService.ejecutar(id_reserva)
-                    self.stdout.write(
-                        self.style.SUCCESS(f"Libro '{reserva.libro.titulo}' marcado como RETIRADO por {reserva.socio.nombre_completo}.")
-                    )
+                    reserva = RetirarLibroService.ejecutar(int(id_reserva))
+                    self.stdout.write(self.style.SUCCESS(f"Retiro registrado con éxito: {reserva}"))
                 except ValidationError as e:
                     msg = e.message if hasattr(e, 'message') else str(e)
                     self.stdout.write(self.style.ERROR(f"Error: {msg}"))

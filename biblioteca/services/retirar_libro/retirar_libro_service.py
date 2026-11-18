@@ -12,7 +12,8 @@ class RetirarLibroService:
 
         if reserva.estado != ReservaEstado.PENDIENTE:
             raise ValidationError("Solo se pueden retirar reservas que estén en estado PENDIENTE.")
-
+        if not str(id_reserva).strip().isdigit():
+            raise ValidationError("Debe ingresar un ID de reserva numérico válido.")
         reserva.estado = ReservaEstado.RETIRADA
         reserva.save(update_fields=['estado'])
         return reserva

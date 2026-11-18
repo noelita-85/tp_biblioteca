@@ -7,6 +7,8 @@ class RealizarReservaService:
     @classmethod
     def ejecutar(cls, id_socio, id_libro):
         """Crea una reserva de un libro para un socio determinado."""
+        if not str(id_socio).strip().isdigit() or not str(id_libro).strip().isdigit():
+            raise ValidationError("Los IDs de socio y de libro deben ser números válidos.")
         socio = Socio.objects.filter(id=id_socio).first()
         if not socio:
             raise ValidationError("No existe ningún socio registrado con el ID ingresado.")
