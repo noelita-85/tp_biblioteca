@@ -84,6 +84,8 @@ class Command(BaseCommand):
                     nombre = input("Nombre: ").strip()
                     apellido = input("Apellido: ").strip()
                     dni = input("DNI: ").strip()
+                    email = input("Email (opcional): ").strip() or None
+                    estado = input("Estado (ACTIVO/INACTIVO, por defecto ACTIVO): ").strip().upper() or "ACTIVO"
                     
 
                     socio = RegistrarSocioService.ejecutar(nombre, apellido, dni)
