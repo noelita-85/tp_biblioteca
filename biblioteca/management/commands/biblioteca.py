@@ -84,6 +84,7 @@ class Command(BaseCommand):
                     nombre = input("Nombre: ").strip()
                     apellido = input("Apellido: ").strip()
                     dni = input("DNI: ").strip()
+                    
 
                     socio = RegistrarSocioService.ejecutar(nombre, apellido, dni)
                     self.stdout.write(self.style.SUCCESS(f"Socio '{socio.nombre_completo}' registrado con éxito (ID #{socio.id})."))
@@ -144,7 +145,7 @@ class Command(BaseCommand):
                     reserva = RealizarReservaService.ejecutar(id_socio, id_libro)
                     self.stdout.write(
                         self.style.SUCCESS(f"Reserva #{reserva.id} creada con éxito para {reserva.socio.nombre_completo}.")
-                    )
+                    )#aumenta un nro automatico en la base de datos y se asocia al socio y libro correspondiente, con estado PENDIENTE. Si el socio no existe o el libro no tiene stock, lanza ValidationError.
                 except ValidationError as e:
                     msg = e.message if hasattr(e, 'message') else str(e)
                     self.stdout.write(self.style.ERROR(f"Error: {msg}"))
